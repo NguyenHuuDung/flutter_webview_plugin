@@ -105,25 +105,11 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
         [self registerJavaScriptChannels:_javaScriptChannelNames controller:userContentController];
     }
 
-//    if (clearCache != (id)[NSNull null] && [clearCache boolValue]) {
-//        [[NSURLCache sharedURLCache] removeAllCachedResponses];
-//        [self cleanCache:result];
-//
-//    }
-
     if (clearCache != (id)[NSNull null] && [clearCache boolValue]) {
-           if (@available(iOS 11.3, *)) {
-               NSSet *dataTypes = [NSSet setWithArray:@[WKWebsiteDataTypeDiskCache, WKWebsiteDataTypeMemoryCache, WKWebsiteDataTypeFetchCache]];
-               [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:dataTypes modifiedSince:[NSDate dateWithTimeIntervalSince1970:0] completionHandler:^(){
-               }];
-           } else if (@available(iOS 9.0, *)) {
-               NSSet *dataTypes = [NSSet setWithArray:@[WKWebsiteDataTypeDiskCache, WKWebsiteDataTypeMemoryCache]];
-               [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:dataTypes modifiedSince:[NSDate dateWithTimeIntervalSince1970:0] completionHandler:^(){
-               }];
-           } else {
-               [[NSURLCache sharedURLCache] removeAllCachedResponses];
-           }
-       }
+        [[NSURLCache sharedURLCache] removeAllCachedResponses];
+        [self cleanCache:result];
+
+    }
     
     if (clearCookies != (id)[NSNull null] && [clearCookies boolValue]) {
         NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
@@ -297,7 +283,8 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
         [[NSURLSession sharedSession] resetWithCompletionHandler:^{
         }];
         if (@available(iOS 9.0, *)) {
-          NSSet<NSString *> *websiteDataTypes = [NSSet setWithObject:WKWebsiteDataTypeCookies];
+            NSSet* websiteDataTypes = [WKWebsiteDataStore allWebsiteDataTypes];
+//          NSSet<NSString *> *websiteDataTypes = [NSSet setWithObject:WKWebsiteDataTypeCookies];
           WKWebsiteDataStore *dataStore = [WKWebsiteDataStore defaultDataStore];
 
           void (^deleteAndNotify)(NSArray<WKWebsiteDataRecord *> *) =
