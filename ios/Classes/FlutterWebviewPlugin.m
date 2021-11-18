@@ -105,12 +105,26 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
         [self registerJavaScriptChannels:_javaScriptChannelNames controller:userContentController];
     }
 
+//    if (clearCache != (id)[NSNull null] && [clearCache boolValue]) {
+//        [[NSURLCache sharedURLCache] removeAllCachedResponses];
+//        [self cleanCache:result];
+//
+//    }
+
     if (clearCache != (id)[NSNull null] && [clearCache boolValue]) {
-        [[NSURLCache sharedURLCache] removeAllCachedResponses];
-        [self cleanCache:result];
-
-    }
-
+           if (@available(iOS 11.3, *)) {
+               NSSet *dataTypes = [NSSet setWithArray:@[WKWebsiteDataTypeDiskCache, WKWebsiteDataTypeMemoryCache, WKWebsiteDataTypeFetchCache]];
+               [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:dataTypes modifiedSince:[NSDate dateWithTimeIntervalSince1970:0] completionHandler:^(){
+               }];
+           } else if (@available(iOS 9.0, *)) {
+               NSSet *dataTypes = [NSSet setWithArray:@[WKWebsiteDataTypeDiskCache, WKWebsiteDataTypeMemoryCache]];
+               [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:dataTypes modifiedSince:[NSDate dateWithTimeIntervalSince1970:0] completionHandler:^(){
+               }];
+           } else {
+               [[NSURLCache sharedURLCache] removeAllCachedResponses];
+           }
+       }
+    
     if (clearCookies != (id)[NSNull null] && [clearCookies boolValue]) {
         NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
         for (NSHTTPCookie *cookie in [storage cookies])
