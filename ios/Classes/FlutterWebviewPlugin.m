@@ -110,7 +110,6 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
         [self cleanCache:result];
 
     }
-    NSLog(@"Đây là xoá clearCookies");
     if (clearCookies != (id)[NSNull null] && [clearCookies boolValue]) {
         NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
         for (NSHTTPCookie *cookie in [storage cookies])
@@ -279,17 +278,16 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
 }
 
 - (void)cleanCookies:(FlutterResult)result {
-    NSLog(@"Đây là xoá cookie");
     if(self.webview != nil) {
         [[NSURLSession sharedSession] resetWithCompletionHandler:^{
         }];
         if (@available(iOS 9.0, *)) {
-            NSSet* websiteDataTypes = [WKWebsiteDataStore allWebsiteDataTypes];
-//          NSSet<NSString *> *websiteDataTypes = [NSSet setWithObject:WKWebsiteDataTypeCookies];
+          NSSet<NSString *> *websiteDataTypes = [NSSet setWithObject:WKWebsiteDataTypeCookies];
           WKWebsiteDataStore *dataStore = [WKWebsiteDataStore defaultDataStore];
 
           void (^deleteAndNotify)(NSArray<WKWebsiteDataRecord *> *) =
               ^(NSArray<WKWebsiteDataRecord *> *cookies) {
+                  NSLog(@"Clearing cookies : %@", cookies);
                 [dataStore removeDataOfTypes:websiteDataTypes
                               forDataRecords:cookies
                            completionHandler:^{
@@ -311,6 +309,7 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
           NSSet* cacheDataTypes = [WKWebsiteDataStore allWebsiteDataTypes];
           WKWebsiteDataStore* dataStore = [WKWebsiteDataStore defaultDataStore];
           NSDate* dateFrom = [NSDate dateWithTimeIntervalSince1970:0];
+           NSLog(@"clean cache : %@", cacheDataTypes);
           [dataStore removeDataOfTypes:cacheDataTypes
                          modifiedSince:dateFrom
                      completionHandler:^{
