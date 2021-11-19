@@ -110,7 +110,7 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
         [self cleanCache:result];
 
     }
-    
+    NSLog(@"Đây là xoá clearCookies");
     if (clearCookies != (id)[NSNull null] && [clearCookies boolValue]) {
         NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
         for (NSHTTPCookie *cookie in [storage cookies])
@@ -279,6 +279,7 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
 }
 
 - (void)cleanCookies:(FlutterResult)result {
+    NSLog(@"Đây là xoá cookie");
     if(self.webview != nil) {
         [[NSURLSession sharedSession] resetWithCompletionHandler:^{
         }];
