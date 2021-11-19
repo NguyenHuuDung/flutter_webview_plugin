@@ -278,7 +278,9 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
 }
 
 - (void)cleanCookies:(FlutterResult)result {
+    NSLog(@"Clearing cookies1");
     if(self.webview != nil) {
+        NSLog(@"Clearing cookies2");
         [[NSURLSession sharedSession] resetWithCompletionHandler:^{
         }];
         if (@available(iOS 9.0, *)) {
@@ -300,11 +302,15 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
           // support for iOS8 tracked in https://github.com/flutter/flutter/issues/27624.
           NSLog(@"Clearing cookies is not supported for Flutter WebViews prior to iOS 9.");
         }
+    }else {
+    NSLog(@"Clearing cookies3");
     }
 }
 
 - (void)cleanCache:(FlutterResult)result {
+    NSLog(@"cleanCache1");
     if (self.webview != nil) {
+        NSLog(@"cleanCache2");
        if (@available(iOS 9.0, *)) {
           NSSet* cacheDataTypes = [WKWebsiteDataStore allWebsiteDataTypes];
           WKWebsiteDataStore* dataStore = [WKWebsiteDataStore defaultDataStore];
@@ -319,7 +325,10 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
           // support for iOS8 tracked in https://github.com/flutter/flutter/issues/27624.
           NSLog(@"Clearing cache is not supported for Flutter WebViews prior to iOS 9.");
         }
+    }else {
+        NSLog(@"cleanCache3");
     }
+   
 }
 
 - (void)show {
