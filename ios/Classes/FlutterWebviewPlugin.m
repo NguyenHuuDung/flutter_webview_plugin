@@ -85,6 +85,9 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
 }
 
 - (void)initWebview:(FlutterMethodCall*)call withResult:(FlutterResult)result {
+    NSLog(@"Clearing cookies init");
+    NSLog(@"self.webview initview : %@", self.webview);
+    
     NSNumber *clearCache = call.arguments[@"clearCache"];
     NSNumber *clearCookies = call.arguments[@"clearCookies"];
     NSNumber *hidden = call.arguments[@"hidden"];
@@ -107,7 +110,21 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
 
     if (clearCache != (id)[NSNull null] && [clearCache boolValue]) {
         [[NSURLCache sharedURLCache] removeAllCachedResponses];
-        [self cleanCache:result];
+//        [self cleanCache:result];
+        if (@available(iOS 9.0, *)) {
+           NSSet* cacheDataTypes = [WKWebsiteDataStore allWebsiteDataTypes];
+           WKWebsiteDataStore* dataStore = [WKWebsiteDataStore defaultDataStore];
+           NSDate* dateFrom = [NSDate dateWithTimeIntervalSince1970:0];
+            NSLog(@"clean cache9 : %@", cacheDataTypes);
+           [dataStore removeDataOfTypes:cacheDataTypes
+                          modifiedSince:dateFrom
+                      completionHandler:^{
+               result(nil);
+                      }];
+         } else {
+           // support for iOS8 tracked in https://github.com/flutter/flutter/issues/27624.
+           NSLog(@"Clearing cache is not supported for Flutter WebViews prior to iOS 9.");
+         }
 
     }
     if (clearCookies != (id)[NSNull null] && [clearCookies boolValue]) {
@@ -116,8 +133,29 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
         {
             [storage deleteCookie:cookie];
         }
+        
+        [[NSURLSession sharedSession] resetWithCompletionHandler:^{
+        }];
+        if (@available(iOS 9.0, *)) {
+          NSSet<NSString *> *websiteDataTypes = [NSSet setWithObject:WKWebsiteDataTypeCookies];
+          WKWebsiteDataStore *dataStore = [WKWebsiteDataStore defaultDataStore];
 
-        [self cleanCookies:result];
+          void (^deleteAndNotify)(NSArray<WKWebsiteDataRecord *> *) =
+              ^(NSArray<WKWebsiteDataRecord *> *cookies) {
+                  NSLog(@"Clearing cookies9 : %@", cookies);
+                [dataStore removeDataOfTypes:websiteDataTypes
+                              forDataRecords:cookies
+                           completionHandler:^{
+                            result(nil);
+                           }];
+              };
+
+          [dataStore fetchDataRecordsOfTypes:websiteDataTypes completionHandler:deleteAndNotify];
+        } else {
+          // support for iOS8 tracked in https://github.com/flutter/flutter/issues/27624.
+          NSLog(@"Clearing cookies is not supported for Flutter WebViews prior to iOS 9.");
+        }
+//        [self cleanCookies:result];
 
     }
 
@@ -144,6 +182,9 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
     
     [self.webview addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:NULL];
 
+    NSLog(@"Clearing cookies init1");
+    NSLog(@"self.webview initview1 : %@", self.webview);
+    
     WKPreferences* preferences = [[self.webview configuration] preferences];
     if ([withJavascript boolValue]) {
         [preferences setJavaScriptEnabled:YES];
