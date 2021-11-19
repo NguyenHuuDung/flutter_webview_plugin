@@ -279,6 +279,7 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
 
 - (void)cleanCookies:(FlutterResult)result {
     NSLog(@"Clearing cookies1");
+    NSLog(@"self.webview  : %@", self.webview != nil ? "true" : "false");
     if(self.webview != nil) {
         NSLog(@"Clearing cookies2");
         [[NSURLSession sharedSession] resetWithCompletionHandler:^{
@@ -309,6 +310,7 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
 
 - (void)cleanCache:(FlutterResult)result {
     NSLog(@"cleanCache1");
+    NSLog(@"self.webview  : %@", self.webview != nil ? "true" : "false");
     if (self.webview != nil) {
         NSLog(@"cleanCache2");
        if (@available(iOS 9.0, *)) {
